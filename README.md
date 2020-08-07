@@ -1,8 +1,8 @@
-## `set .env.development`
-## `rails s`
-## open `browser` and `generate` to get `registration_id`
-## send `registration_id to hub`
+1. `set .env.development`
+2. `$ rails s`
+3.  open `browser` and `generate` for get `registration_id`
+4.  send `registration_id to hub`
 
-## At hub core run `rails c`
-## Send notif to `registration_id`, then see in browser
+5.  At `hub core` run `$ rails c`
+6.  Send notif to `registration_id`, then see in browser
 ## yay!!!
