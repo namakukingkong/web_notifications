@@ -15,12 +15,29 @@
       <!-- Container for the Table of content -->
       <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
         <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+          <div>
+            <h4>Hub Token</h4>
+            <input class="hub-token" type="text" style="height: 30px; width: 100%;margin-bottom: 10px;">
+            <br>
+            <div class="hub-token-show"></div>
+            <br>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+                    onclick="setHubToken()">Set / Reset Token Authorize Hub</button>
+          </div>
+          <br>
+          <br>
+          <hr>
+          <br>
           <!-- div to display the generated Instance ID token -->
           <div id="token_div" style="display: none;">
             <h4>Instance ID Token</h4>
             <p id="token" style="word-break: break-all;"></p>
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-                    onclick="deleteToken()">Delete Token</button>
+                    onclick="deleteToken()">Resend Token</button>
+            <br>
+            <br>
+            <br>
+            <div class="status-send"></div>
           </div>
           <!-- div to display the UI to allow the request for permission to
                notify the user. This is shown if the app has not yet been
@@ -31,6 +48,9 @@
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
                     onclick="requestPermission()">Request Permission</button>
           </div>
+          <br>
+          <hr>
+          <br>
           <!-- div to display messages received by this app. -->
           <div id="messages"></div>
         </div>

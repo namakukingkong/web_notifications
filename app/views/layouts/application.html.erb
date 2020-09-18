@@ -13,7 +13,7 @@ limitations under the License.
 -->
 <html>
 <head>
-  <meta charset=utf-8 />
+  <meta charset=utf-8/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Firebase Cloud Messaging Example</title>
 
@@ -44,21 +44,60 @@ limitations under the License.
 <script>
   // Your web app's Firebase configuration
   const firebaseConfig = {
-    apiKey: "<%= ENV['FCM_API_KEY'] %>",
-    authDomain: "<%= ENV['FCM_PROJECT_ID'] %>.firebaseapp.com",
-    databaseURL: "https://<%= ENV['FCM_PROJECT_ID'] %>.firebaseio.com",
-    projectId: "<%= ENV['FCM_PROJECT_ID'] %>",
-    storageBucket: "<%= ENV['FCM_PROJECT_ID'] %>.appspot.com",
-    messagingSenderId: "<%= ENV['FCM_SENDER_ID'] %>",
-    appId: "<%= ENV['FCM_API_KEY'] %>",
-    measurementId: "<%= ENV['FCM_MEASUREMENT_ID'] %>"
+    apiKey: "AIzaSyAxtJ27ItN4JayVkfKt7UvLhw7M0Do3a-4",
+    authDomain: "development-for-hub.firebaseapp.com",
+    databaseURL: "https://development-for-hub.firebaseio.com",
+    projectId: "development-for-hub",
+    storageBucket: "development-for-hub.appspot.com",
+    messagingSenderId: "590746739570",
+    appId: "1:590746739570:web:bbbce2208f1d44bdb7b3eb",
+    measurementId: "G-28W8T7ZYW9"
   };
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   firebase.analytics();
 </script>
 <script>
-  const vapidKey = "<%= ENV['FCM_VAPID_KEY'] %>"
+  function setHubToken() {
+    const tok = document.querySelector('.hub-token')
+    if (tok.value !== null && tok.value.length <= 0) {
+      window.localStorage.setItem('authorization', "");
+    } else {
+      window.localStorage.setItem('authorization', tok.value);
+    }
+    showHubToken()
+  }
+
+  function showHubToken() {
+    const tok_show = document.querySelector('.hub-token-show')
+    if (window.localStorage.getItem('authorization') !== null && window.localStorage.getItem('authorization').length > 0) {
+      tok_show.textContent = window.localStorage.getItem('authorization');
+    } else {
+      tok_show.textContent = "";
+    }
+  }
+
+  showHubToken()
+
+  async function postData(url = '', data = {}, authorization = "") {
+    // Default options are marked with *
+    const response = await fetch(url, {
+      method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authorization,
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+  }
+
+  const vapidKey = "BPJBPofDbh7gPIeG3bqGORoRqRQSjOmiqGx_S962klWZAQPtQ5qhpCHZkfJHtg5w7IKl2XTWII3dAobzmE8bdH8"
   // [START get_messaging_object]
   // Retrieve Firebase Messaging object.
   const messaging = firebase.messaging();
@@ -105,6 +144,7 @@ limitations under the License.
     appendMessage(payload);
     // [END_EXCLUDE]
   });
+
   // [END receive_message]
 
   function resetUI() {
@@ -146,7 +186,22 @@ limitations under the License.
     if (!isTokenSentToServer()) {
       console.log('Sending token to server...');
       // TODO(developer): Send the current token to your server.
-      setTokenSentToServer(true);
+      if (window.localStorage.getItem('authorization') !== null && window.localStorage.getItem('authorization').length > 0) {
+        postData('https://staging-service.qontak.com/api/core/v1/auths/notification_credentials', {
+          resource_type: "web",
+          token: currentToken
+        }, window.localStorage.getItem('authorization'))
+          .then(data => {
+            setTokenSentToServer(true);
+            const tokenElement = document.querySelector('.status-send');
+            tokenElement.textContent = JSON.stringify(data);
+            console.log(data); // JSON data parsed by `data.json()` call
+          });
+      } else {
+        console.log("Failure !! Hub token not set")
+        const tokenElement = document.querySelector('.status-send');
+        tokenElement.textContent = "Failure !! Hub token not set";
+      }
     } else {
       console.log('Token already sent to server so won\'t send it again ' +
         'unless it changes');
@@ -191,24 +246,28 @@ limitations under the License.
   }
 
   function deleteToken() {
+    setTokenSentToServer(false);
+    resetUI();
     // Delete Instance ID token.
     // [START delete_token]
-    messaging.getToken().then((currentToken) => {
-      messaging.deleteToken(currentToken).then(() => {
-        console.log('Token deleted.');
-        setTokenSentToServer(false);
-        // [START_EXCLUDE]
-        // Once token is deleted update UI.
-        resetUI();
-        // [END_EXCLUDE]
-      }).catch((err) => {
-        console.log('Unable to delete token. ', err);
-      });
-      // [END delete_token]
-    }).catch((err) => {
-      console.log('Error retrieving Instance ID token. ', err);
-      showToken('Error retrieving Instance ID token. ', err);
-    });
+    // messaging.getToken().then((currentToken) => {
+    //   setTokenSentToServer(false);
+    //   resetUI();
+    //   messaging.deleteToken(currentToken).then(() => {
+    //     console.log('Token deleted.');
+    //     setTokenSentToServer(false);
+    //     // [START_EXCLUDE]
+    //     // Once token is deleted update UI.
+    //     resetUI();
+    //     // [END_EXCLUDE]
+    //   }).catch((err) => {
+    //     console.log('Unable to delete token. ', err);
+    //   });
+    //   // [END delete_token]
+    // }).catch((err) => {
+    //   console.log('Error retrieving Instance ID token. ', err);
+    //   showToken('Error retrieving Instance ID token. ', err);
+    // });
 
   }
 
